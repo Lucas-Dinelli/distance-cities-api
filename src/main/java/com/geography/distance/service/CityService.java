@@ -1,6 +1,8 @@
 package com.geography.distance.service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -8,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
+import com.geography.distance.dto.CityOutputDTO;
 import com.geography.distance.dto.DistanceOutputDTO;
 import com.geography.distance.model.City;
 import com.geography.distance.repository.CityRepository;
@@ -27,6 +30,11 @@ public class CityService {
 		return cityRepository.findAll(pageable);
 	}
 	
+	public List<CityOutputDTO> findByName(String name) {
+		List<City> cities = cityRepository.findByName(name);
+		return cities.stream().map(city -> CityOutputDTO.transform(city)).collect(Collectors.toList());
+	}
+	
 	public DistanceOutputDTO findDistanceById(Long idFirstCity, Long idSecondCity, String unitMeasurement) {
 		final City firstCity = this.findById(idFirstCity);
 		final City secondCity = this.findById(idSecondCity);
@@ -34,8 +42,8 @@ public class CityService {
 	}
 	
 	public DistanceOutputDTO findDistanceByName(String nameFirstCity, String ufFirstCity, String nameSecondCity, String ufSecondCity, String unitMeasurement) {
-		final City firstCity = this.findByName(nameFirstCity, ufFirstCity.toUpperCase());
-		final City secondCity = this.findByName(nameSecondCity, ufSecondCity.toUpperCase());
+		final City firstCity = this.findByNameAndUf(nameFirstCity, ufFirstCity.toUpperCase());
+		final City secondCity = this.findByNameAndUf(nameSecondCity, ufSecondCity.toUpperCase());
 		return this.findDistanceBetweenCities(firstCity, secondCity, unitMeasurement);
 	}
 	
@@ -44,8 +52,8 @@ public class CityService {
 		return objCity.orElseThrow(() -> new ObjectNotFoundException("The id '" + id + "' is not from any city!"));
 	}
 	
-	private City findByName(String name, String uf) {
-		Optional<City> objCity = cityRepository.findByName(name, uf);
+	private City findByNameAndUf(String name, String uf) {
+		Optional<City> objCity = cityRepository.findByNameAndUf(name, uf);
 		return objCity.orElseThrow(() -> new ObjectNotFoundException("'" + name + ", " + uf + "' does not correspond to any city!"));
 	}
 	

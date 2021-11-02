@@ -2,12 +2,14 @@ package com.geography.distance.service;
 
 import static com.geography.distance.utils.CityUtils.createFakeCityModel;
 import static com.geography.distance.utils.CityUtils.createSecondFakeCityModel;
+import static com.geography.distance.utils.CityOutputDTOUtils.createFakeCityOutputDTO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import com.geography.distance.dto.CityOutputDTO;
 import com.geography.distance.dto.DistanceOutputDTO;
 import com.geography.distance.model.City;
 import com.geography.distance.repository.CityRepository;
@@ -51,8 +54,20 @@ public class CityServiceTest {
 	}
 	
 	@Test
-	@DisplayName("The method findById returns DistanceOutputDTO when successful")
-	public void findByID_ShouldReturnDistanceOutputDTO_WhenSuccessful() {
+	@DisplayName("The method findByName returns list of CityOutpuDTO when successful")
+	public void findByName_ShouldReturnListOfCityOutputDTO_WhenSuccessful() {
+		List<CityOutputDTO> expectedList = Arrays.asList(createFakeCityOutputDTO());
+		
+		when(cityRepository.findByName(any(String.class))).thenReturn(Arrays.asList(createFakeCityModel()));
+		
+		List<CityOutputDTO> returnedList = cityService.findByName("Rio de Janeiro");
+		
+		assertEquals(expectedList.get(0), returnedList.get(0));
+	}
+	
+	@Test
+	@DisplayName("The method findDistanceById returns DistanceOutputDTO when successful")
+	public void findDistanceById_ShouldReturnDistanceOutputDTO_WhenSuccessful() {
 		when(cityRepository.findById(1L)).thenReturn(Optional.of(createFakeCityModel()));
 		when(cityRepository.findById(2L)).thenReturn(Optional.of(createSecondFakeCityModel()));
 		when(cityRepository.distanceByCubeInMeter(any(Double.class), any(Double.class), any(Double.class), any(Double.class))).thenReturn(358527.51);
@@ -66,10 +81,10 @@ public class CityServiceTest {
 	}
 	
 	@Test
-	@DisplayName("The method findByName returns DistanceOutputDTO when successful")
-	public void findByName_ShouldReturnDistanceOutputDTO_WhenSuccessful() {
-		when(cityRepository.findByName("Rio de Janeiro", "RJ")).thenReturn(Optional.of(expectedFirstCity));
-		when(cityRepository.findByName("São Paulo", "SP")).thenReturn(Optional.of(expectedSecondCity));
+	@DisplayName("The method findDistanceByName returns DistanceOutputDTO when successful")
+	public void findDistanceByName_ShouldReturnDistanceOutputDTO_WhenSuccessful() {
+		when(cityRepository.findByNameAndUf("Rio de Janeiro", "RJ")).thenReturn(Optional.of(expectedFirstCity));
+		when(cityRepository.findByNameAndUf("São Paulo", "SP")).thenReturn(Optional.of(expectedSecondCity));
 		when(cityRepository.distanceByCubeInMeter(any(Double.class), any(Double.class), any(Double.class), any(Double.class))).thenReturn(358527.51);
 		
 		DistanceOutputDTO distanceOutputReturned = cityService.findDistanceByName("Rio de Janeiro", "RJ", "São Paulo", "SP", "kilometer");
@@ -87,16 +102,16 @@ public class CityServiceTest {
 	}
 	
 	@Test
-	@DisplayName("The method findByName throws ObjectNotFoundException when city does not exist")
-	public void findByName_ShouldThrowObjectNotFoundException_WhenCityNotExist() {
+	@DisplayName("The method findByNameAndUf throws ObjectNotFoundException when city does not exist")
+	public void findByNameAndUf_ShouldThrowObjectNotFoundException_WhenCityNotExist() {
 		assertThrows(ObjectNotFoundException.class, () -> cityService.findDistanceByName("X", "RJ", "São Paulo", "SP", "kilometer"));
 	}
 	
 	@Test
 	@DisplayName("The method convertDistance throws IllegalArgumentCustomException when unit does not exist")
 	public void convertDistance_ShouldThrowIllegalArgumentCustomException_WhenUnitNotExist() {
-		when(cityRepository.findByName("Rio de Janeiro", "RJ")).thenReturn(Optional.of(expectedFirstCity));
-		when(cityRepository.findByName("São Paulo", "SP")).thenReturn(Optional.of(expectedSecondCity));
+		when(cityRepository.findByNameAndUf("Rio de Janeiro", "RJ")).thenReturn(Optional.of(expectedFirstCity));
+		when(cityRepository.findByNameAndUf("São Paulo", "SP")).thenReturn(Optional.of(expectedSecondCity));
 		when(cityRepository.distanceByCubeInMeter(any(Double.class), any(Double.class), any(Double.class), any(Double.class))).thenReturn(358527.51);
 		
 		assertThrows(IllegalArgumentCustomException.class, () -> cityService.findDistanceByName("Rio de Janeiro", "RJ", "São Paulo", "SP", "foot"));

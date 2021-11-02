@@ -2,8 +2,10 @@ package com.geography.distance.controller;
 
 import static com.geography.distance.utils.CityUtils.createFakeCityModel;
 import static com.geography.distance.utils.DistanceOutputDTOUtils.createFakeDistanceOutputDTO;
+import static com.geography.distance.utils.CityOutputDTOUtils.createFakeCityOutputDTO;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +24,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.geography.distance.dto.CityOutputDTO;
 import com.geography.distance.dto.DistanceOutputDTO;
 import com.geography.distance.model.City;
 import com.geography.distance.service.CityService;
@@ -42,6 +45,7 @@ public class CityControllerTest {
 		when(cityService.findAll(any())).thenReturn(pageCities);
 		when(cityService.findDistanceById(any(), any(), any())).thenReturn(createFakeDistanceOutputDTO());
 		when(cityService.findDistanceByName(any(), any(), any(), any(), any())).thenReturn(createFakeDistanceOutputDTO());
+		when(cityService.findByName(any())).thenReturn(Arrays.asList(createFakeCityOutputDTO()));
 	}
 	
 	@Test
@@ -54,6 +58,16 @@ public class CityControllerTest {
 		assertNotNull(citiesPage);
 		assertFalse(citiesPage.toList().isEmpty());
 		assertEquals(expectedCity, citiesPage.toList().get(0));
+	}
+	
+	@Test
+	@DisplayName("The method findByName returns list of CityOutputDTO when successful")
+	public void findByName_ShouldReturnListOfCityOutputDTO_WhenSuccessful() {
+		List<CityOutputDTO> expectedList = Arrays.asList(createFakeCityOutputDTO());
+		
+		List<CityOutputDTO> returnedList = cityController.findByName(null).getBody();
+		
+		assertEquals(expectedList.get(0), returnedList.get(0));
 	}
 	
 	@Test
