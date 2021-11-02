@@ -53,6 +53,11 @@ Project to calculate distance between cities
 - All cities (use page):
   - https://distance-cities.herokuapp.com/cities
 
+##
+
+- City by name (example):
+  - [https://distance-cities.herokuapp.com/cities/Rio de Janeiro](https://distance-cities.herokuapp.com/cities/Rio%20de%20Janeiro)
+
  ---
  
 ## **For local development**
